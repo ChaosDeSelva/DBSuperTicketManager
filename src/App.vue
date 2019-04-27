@@ -3,15 +3,17 @@
     <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4
                 bg-white border-bottom box-shadow">
       <span class="fa-stack fa-1x">
-        <font-awesome-icon icon="circle" class="fa-stack-2x" />
-        <font-awesome-icon icon="star" class="fa-stack-1x fa-inverse" />
+        <font-awesome-icon icon="circle" class="fa-stack-2x" aria-hidden="true"/>
+        <font-awesome-icon icon="star" class="fa-stack-1x fa-inverse" aria-hidden="true"/>
       </span>
       <h5 class="my-0 mr-md-auto font-weight-normal">
          Dragonball Super
       </h5>
       <nav class="navbar my-2 my-md-0 mr-md-3">
-        <a class="p-2 text-dark" href="/"><font-awesome-icon icon="ticket-alt" /> Tickets</a>
-        <a class="p-2 text-dark" href="/about"><font-awesome-icon icon="rainbow" /> About</a>
+        <a class="p-2 text-dark" href="/"><font-awesome-icon icon="ticket-alt"
+          aria-hidden="true"/> Tickets</a>
+        <a class="p-2 text-dark" href="/about"><font-awesome-icon icon="rainbow"
+          aria-hidden="true"/> About</a>
       </nav>
     </div>
     <router-view></router-view>

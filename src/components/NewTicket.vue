@@ -8,9 +8,11 @@
                                getStatusByAlias('to-do'))">
       <div class="input-group">
         <input class="form-control form-control-lg" id="ticket-title" placeholder="Title"
-                      type="text" v-on:keyup="errors = []" v-model="newTicketTitle">
+                      type="text" v-on:keyup="errors = []" v-model="newTicketTitle"
+                      aria-label="Insert a ticket title.">
         <div class="input-group-append">
           <span class="btn btn-primary btn-lg" id="add-ticket"
+                aria-label="Create a new ticket."
                 @click="addTicket(getTicketsByTitle(newTicketTitle),
                         getStatusByAlias('to-do'))">Add</span>
         </div>
@@ -72,8 +74,8 @@ export default {
 
       const todoStatusObj = this.getTodoStatusId(todoStatus);
       activeErrors.push(todoStatusObj);
-      activeErrors.push(this.validateTicketTitle(this.newTicketTitle));
-      activeErrors.push(this.ticketTitleExist(ticketTitleExist));
+      activeErrors.push(this.validateTicketTitleCharacterSize(this.newTicketTitle));
+      activeErrors.push(this.validateTicketTitleExistInStore(ticketTitleExist));
 
       this.todoStatusId = Object.prototype.hasOwnProperty.call(todoStatusObj, 'id')
         ? this.todoStatusId = todoStatusObj.id : null;
@@ -82,10 +84,14 @@ export default {
       this.errors = activeErrors.map(item => item.error).filter(item => item);
     },
 
-    validateTicketTitle(newTicketTitle) {
+    validateTicketTitleCharacterSize(newTicketTitle) {
       // Check that the user has entered text in the ticket title input
       if (newTicketTitle === null || newTicketTitle.trim().length <= 0) {
         return { error: 'The ticket title field is required!' };
+      }
+
+      if (newTicketTitle.trim().length > 256) {
+        return { error: 'The ticket title can not be more than 256 characters!' };
       }
 
       return {};
@@ -100,7 +106,7 @@ export default {
       return { id: todoStatus.id };
     },
 
-    ticketTitleExist(ticketTitleExist) {
+    validateTicketTitleExistInStore(ticketTitleExist) {
       // Check if ticket title already exists
       if (ticketTitleExist.length > 0) {
         return { error: 'A ticket with this title already exists!' };

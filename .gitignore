@@ -3,6 +3,7 @@ node_modules
 /dist
 /tests/e2e/reports
 /tests/unit/__snapshots__
+coverage
 
 # local env files
 .env.local
