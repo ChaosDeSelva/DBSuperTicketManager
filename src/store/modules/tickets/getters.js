@@ -5,6 +5,9 @@ export default {
   getStatusById:
     state => id => state.statuses.find(status => status.id === id),
 
+  getStatusByAlias:
+    state => alias => state.statuses.find(status => status.alias === alias),
+
   getTickets:
     state => state.tickets,
 
@@ -13,4 +16,7 @@ export default {
 
   getTicketsByStatusId:
     state => id => state.tickets.filter(ticket => ticket.status_id === id),
+
+  getTicketsByTitle:
+    state => title => state.tickets.filter(ticket => ticket.title === title),
 };

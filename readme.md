@@ -36,4 +36,7 @@
 `yarn lint`
 
 ### Run Tests
-`yarn test`
+`yarn test:unit`
+
+### Run e2e Tests
+`yarn test:e2e`

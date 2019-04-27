@@ -7,7 +7,7 @@
       @blur="editTicket(ticket, $event.target.innerText)"
     >{{ ticket.title }}</span>
     <span v-if="!isCompleted(ticket)" class="close" @click="removeTicket(ticket)">
-      <span>&times;</span>
+      <span class="pointer">&times;</span>
     </span>
   </div>
 </template>
@@ -75,5 +75,8 @@ export default {
       outline: none;
     } // &:focus
   } // .c-ticket__title
-</style>
 
+  .pointer {
+    cursor: pointer;
+  }
+</style>
