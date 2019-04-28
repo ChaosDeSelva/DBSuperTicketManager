@@ -28,7 +28,7 @@
   </div>
 
   <!-- Modal -->
-  <b-modal id="ticket-success-modal" title="SUCCESS!!!">
+  <b-modal id="ticket-success-modal" title="SUCCESS!!!" hide-footer>
     <font-awesome-icon icon="check-circle" /> You created a new ticket!
   </b-modal>
 </div>
@@ -129,7 +129,7 @@ export default {
 
         setTimeout(() => {
           this.$bvModal.hide('ticket-success-modal');
-        }, 1500);
+        }, 1000);
       });
     },
   }, // methods
