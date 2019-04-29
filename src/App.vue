@@ -11,10 +11,10 @@
       </h5>
       <nav class="navbar my-2 my-md-0 mr-md-3">
         <router-link to="/">
-          <a class="p-2 text-dark" href="#"><font-awesome-icon icon="ticket-alt"
+          <a class="p-2 text-dark" href="#" tabindex="1"><font-awesome-icon icon="ticket-alt"
           aria-hidden="true"/> Tickets</a></router-link>
         <router-link to="/about">
-          <a class="p-2 text-dark" href="#"><font-awesome-icon icon="rainbow"
+          <a class="p-2 text-dark" href="#" tabindex="2"><font-awesome-icon icon="rainbow"
           aria-hidden="true"/> About</a></router-link>
       </nav>
     </div>

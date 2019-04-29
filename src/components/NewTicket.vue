@@ -5,11 +5,11 @@
   </div>
   <div class="card-body">
     <form v-on:submit.prevent="addTicket(getTicketsByTitle(newTicketTitle),
-                               getStatusByAlias('to-do'))">
+                               getStatusByAlias('to-do'))" autocomplete="off">
       <div class="input-group">
-        <input class="form-control form-control-lg" id="ticket-title" placeholder="Title"
-                      type="text" v-on:keyup="errors = []" v-model="newTicketTitle"
-                      aria-label="Insert a ticket title.">
+        <input class="form-control form-control-lg" id="ticket-title" placeholder="Ticket Title"
+                      type="text" @keydown="errors = []" v-model="newTicketTitle"
+                      aria-label="Insert a ticket title." autocomplete="off">
         <div class="input-group-append">
           <span class="btn btn-primary btn-lg" id="add-ticket"
                 aria-label="Create a new ticket."
@@ -35,10 +35,13 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
+import TicketHelper from './mixins/TicketHelper';
 
 export default {
   name: 'new-ticket',
+
+  mixins: [TicketHelper],
 
   data() {
     return {
@@ -56,6 +59,14 @@ export default {
   }, // computed
 
   methods: {
+    ...mapActions({
+      newTicket: 'tickets/newTicket',
+    }),
+    /**
+     * Check title meets the requirements and add as a new ticket todo
+     * @param {[type]} ticketTitleExist string check if title exist
+     * @param {[type]} todoStatus       UUID status id of to-do
+     */
     addTicket(ticketTitleExist, todoStatus) {
       // Validate Ticket Title
       this.findTicketTitleErrors(ticketTitleExist, todoStatus);
@@ -69,6 +80,11 @@ export default {
       this.dispatchTicket();
     }, // addTicket
 
+    /**
+     * Find errors in new title text
+     * @param  {[type]} ticketTitleExist string check if title exist
+     * @param  {[type]} todoStatus       UUID status id of to-do
+     */
     findTicketTitleErrors(ticketTitleExist, todoStatus) {
       const activeErrors = [];
 
@@ -84,53 +100,26 @@ export default {
       this.errors = activeErrors.map(item => item.error).filter(item => item);
     },
 
-    validateTicketTitleCharacterSize(newTicketTitle) {
-      // Check that the user has entered text in the ticket title input
-      if (newTicketTitle === null || newTicketTitle.trim().length <= 0) {
-        return { error: 'The ticket title field is required!' };
-      }
-
-      if (newTicketTitle.trim().length > 256) {
-        return { error: 'The ticket title can not be more than 256 characters!' };
-      }
-
-      return {};
-    },
-
-    getTodoStatusId(todoStatus) {
-      // Find the to-do status so we can get a status_id for the ticket
-      if (typeof todoStatus === 'undefined' || !Object.prototype.hasOwnProperty.call(todoStatus, 'id')) {
-        return { error: 'Error finding a valid state!' };
-      }
-
-      return { id: todoStatus.id };
-    },
-
-    validateTicketTitleExistInStore(ticketTitleExist) {
-      // Check if ticket title already exists
-      if (ticketTitleExist.length > 0) {
-        return { error: 'A ticket with this title already exists!' };
-      }
-
-      return {};
-    },
-
+    /**
+     * Dispatch ticket for mutation
+     */
     dispatchTicket() {
       // Dispatch the new ticket
-      this.$store.dispatch('tickets/newTicket', {
+      this.newTicket({
         data: {
           title: this.newTicketTitle,
           status_id: this.todoStatusId,
         },
-      }).then(() => {
-        this.errors = [];
-        this.newTicketTitle = null;
-        this.$bvModal.show('ticket-success-modal');
+      })
+        .then(() => {
+          this.errors = [];
+          this.newTicketTitle = null;
+          this.$bvModal.show('ticket-success-modal');
 
-        setTimeout(() => {
-          this.$bvModal.hide('ticket-success-modal');
-        }, 1000);
-      });
+          setTimeout(() => {
+            this.$bvModal.hide('ticket-success-modal');
+          }, 1000);
+        });
     },
   }, // methods
 };

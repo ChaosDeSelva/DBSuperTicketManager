@@ -1,30 +1,36 @@
 <template>
-  <div class="c-ticket" draggable="true" v-on:dragstart="dragStart($event)"
-       v-on:dragend="dragEnd()">
-    <span style="padding-right: 5px;">
-      <font-awesome-icon icon="arrows-alt" class="pointer" />
-    </span>
-    <span
-      class="c-ticket__title"
-      :contenteditable="!isCompleted(ticket)"
-      @keydown.enter.prevent="editTicket(ticket, $event.target.innerText)"
-      @blur="editTicket(ticket, $event.target.innerText)"> {{ ticket.title }}
-      <span v-b-tooltip.hover title="Click anywhere in the title to edit the text!">
-        <font-awesome-icon icon="edit" aria-label="Click to edit the ticket title."
-        class="c-ticket__title__edit c-ticket__title__edit__icon pointer" @blur="bubbleUp()"/>
+  <div>
+    <div class="c-ticket" draggable="true" @dragstart="dragStart($event)"
+         @dragend="dragEnd()">
+      <span style="padding-right: 5px;">
+        <font-awesome-icon icon="arrows-alt" class="pointer" />
       </span>
-    </span>
-    <span v-if="!isCompleted(ticket)" class="close pointer" @click="removeTicket(ticket)">
-      &times;
-    </span>
+      <span
+        class="c-ticket__title"
+        :contenteditable="!isCompleted(ticket)"
+        @keydown.enter.prevent="editTicket(ticket, $event.target.innerText)"
+        @blur="editTicket(ticket, $event.target.innerText)"> {{ ticket.title }}
+        <span v-b-tooltip.hover title="Click anywhere in the title to edit the text!">
+          <font-awesome-icon icon="edit" aria-label="Click to edit the ticket title."
+          class="c-ticket__title__edit c-ticket__title__edit__icon pointer" @blur="bubbleUp()"/>
+        </span>
+      </span>
+      <span v-if="!isCompleted(ticket)" class="close pointer" @click="removeTicket(ticket)">
+        &times;
+      </span>
+    </div>
+
   </div>
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
+import TicketHelper from './mixins/TicketHelper';
 
 export default {
   name: 'single-ticket',
+
+  mixins: [TicketHelper],
 
   props: {
     ticket: {
@@ -40,8 +46,17 @@ export default {
   }, // computed
 
   methods: {
+    ...mapActions({
+      editTicketAction: 'tickets/editTicket',
+      removeTicketAction: 'tickets/removeTicket',
+    }),
+    /**
+     * Drag a ticket to drop in a different group, create a custom drag dom object
+     * @param  {[type]} event drag and drop event
+     */
     dragStart(event) {
       // String the JSON of the ticket to send to the drop handler
+      // TODO add touch events for mobile support
       event.dataTransfer.setData('ticket', JSON.stringify(this.ticket));
 
       // Custom Drag item
@@ -60,27 +75,59 @@ export default {
       event.dataTransfer.setDragImage(dragDisplayElement, -10, -10);
     },
 
+    /**
+     * Remove custom DOM element on drag start when drag ends
+     */
     dragEnd() {
       document.getElementById('ticketTargetDragElement').remove();
     },
 
+    /**
+     * Do not let icon mess up the edit trigger on the input
+     */
     bubbleUp() {
       // Do nothing, allow event to bubble up to the parent and use the parent blur.
-
     },
 
+    /**
+     * Emit ticket error when edit a ticket. Emit to ticket cards component.
+     * @param  {[type]} message error message
+     */
+    emitTicketEditStatus(message) {
+      this.$emit('modal-error-message', message);
+    },
+
+    /**
+     * Validate new ticket title, push edit changes
+     * @param  {[type]} ticket Object the active ticket
+     * @param  {[type]} title  String new ticket title
+     */
     editTicket(ticket, title) {
+      // Check if edit value change is too large or empty.
+      // TODO does not edit on mobile, stackoverflow editing span on mobile
+      const titleSize = this.validateTicketTitleCharacterSize(title);
+
+      if (Object.prototype.hasOwnProperty.call(titleSize, 'error')) {
+        this.emitTicketEditStatus(titleSize.error); // TODO force update ?
+        return;
+      }
+
+      // Push ticket title change
       const updatedTicket = {
         ...ticket,
         title,
       };
 
-      this.$store.dispatch('tickets/editTicket', { data: updatedTicket })
+      this.editTicketAction({ data: updatedTicket })
         .then(() => {
           window.getSelection().removeAllRanges();
         });
     }, // editTicket
 
+    /**
+     * Remove a ticket, confirm first
+     * @param  {[type]} ticket Object the active ticket
+     */
     removeTicket(ticket) {
       this.$bvModal.msgBoxConfirm('Delete this ticket?', {
         title: 'Please Confirm',
@@ -95,14 +142,19 @@ export default {
       })
         .then((value) => {
           if (value) {
-            this.$store.dispatch('tickets/removeTicket', { data: ticket });
+            this.removeTicketAction({ data: ticket });
           }
         })
         .catch(() => {
-        // An error occurred TODO
+          // An error occurred TODO emit to error modal
         });
     }, // removeTicket
 
+    /**
+     * Check if ticket status is complete
+     * @param  {[type]}  ticket Object the active ticket
+     * @return {Boolean}        boolean check if status alias is complete
+     */
     isCompleted(ticket) {
       return this.getStatusById(ticket.status_id).alias === 'completed' || false;
     }, // isCompleted
