@@ -11,7 +11,8 @@
         @keydown.enter.prevent="editTicket(ticket, $event.target.innerText)"
         @blur="editTicket(ticket, $event.target.innerText)"> {{ ticket.title }}
         <span v-b-tooltip.hover title="Click anywhere in the title to edit the text!">
-          <font-awesome-icon icon="edit" aria-label="Click to edit the ticket title."
+          <font-awesome-icon icon="edit" v-if="!isCompleted(ticket)"
+          aria-label="Click to edit the ticket title."
           class="c-ticket__title__edit c-ticket__title__edit__icon pointer" @blur="bubbleUp()"/>
         </span>
       </span>
